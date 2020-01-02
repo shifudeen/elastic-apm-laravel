@@ -5,22 +5,12 @@ use Illuminate\Support\ServiceProvider as BaseServiceProvider;
 use PhilKra\Helper\Timer;
 
 use AG\ElasticApmLaravel\Agent;
+// use AG\ElasticApmLaravel\Collectors\TimelineDataCollector;
 use AG\ElasticApmLaravel\Contracts\VersionResolver;
 
 class ServiceProvider extends BaseServiceProvider
 {
-    private $start_time;
     private $source_config_path = __DIR__ . '/../config/elastic-apm-laravel.php';
-
-    /**
-     * Bootstrap the application events.
-     *
-     * @return void
-     */
-    public function boot(): void
-    {
-        $this->publishConfig();
-    }
 
     /**
      * Register the service provider.
@@ -30,7 +20,23 @@ class ServiceProvider extends BaseServiceProvider
     public function register(): void
     {
         $this->mergeConfigFrom($this->source_config_path, 'elastic-apm-laravel');
-        $this->startTransaction($this->registerAgent());
+        $this->registerAgent();
+    }
+
+    /**
+     * Bootstrap the application events.
+     *
+     * @return void
+     */
+    public function boot(): void
+    {
+        $this->publishConfig();
+        $this->listenForQueries();
+        $this->app->booted(
+            function () {
+                $this->app->make(Agent::class)->measureBootstrapTime();
+            }
+        );
     }
 
     /**
@@ -44,24 +50,6 @@ class ServiceProvider extends BaseServiceProvider
         });
 
         return $agent;
-    }
-
-    /**
-     * Start the transaction that will measure the request, application start up time,
-     * DB queries, HTTP requests, etc
-     */
-    protected function startTransaction(Agent $agent): void
-    {
-        $transaction = $agent->startTransaction(
-            $this->getTransactionName(),
-            [],
-            $_SERVER['REQUEST_TIME_FLOAT']
-        );
-        $boot_span = $agent->startSpan('Laravel boot', $transaction);
-        $boot_span->setType('app');
-
-        // Save the instance to stop the timer in the future
-        $this->app->instance('boot_span', $boot_span);
     }
 
     /**
@@ -111,14 +99,27 @@ class ServiceProvider extends BaseServiceProvider
         return $config;
     }
 
-    protected function getTransactionName(): string
-    {
-        return $_SERVER['REQUEST_METHOD'] . ' ' . $this->normalizeUri($_SERVER['REQUEST_URI']);
-    }
+    // protected function listenForQueries()
+    // {
+    //     $this->app->events->listen(QueryExecuted::class, function (QueryExecuted $query) {
+    //         $query = [
+    //             'name' => 'Eloquent Query',
+    //             'type' => 'db.mysql.query',
+    //             'start' => round((microtime(true) - $query->time / 1000 - $_SERVER['REQUEST_TIME_FLOAT']) * 1000, 3),
+    //             // calculate start time from duration
+    //             'duration' => round($query->time, 3),
+    //             'stacktrace' => $stackTrace,
+    //             'context' => [
+    //                 'db' => [
+    //                     'instance' => $query->connection->getDatabaseName(),
+    //                     'statement' => $query->sql,
+    //                     'type' => 'sql',
+    //                     'user' => $query->connection->getConfig('username'),
+    //                 ],
+    //             ],
+    //         ];
 
-    protected function normalizeUri(string $uri): string
-    {
-        // Fix leading /
-        return '/' . trim($uri, '/');
-    }
+    //         $this->app->make(Agent::class)->addQuery($query);
+    //     });
+    // }
 }

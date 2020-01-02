@@ -4,10 +4,11 @@ namespace AG\ElasticApmLaravel\Middleware;
 use Closure;
 use Throwable;
 use PhilKra\Events\Transaction;
-use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 use Illuminate\Routing\Route;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Collection;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 use AG\ElasticApmLaravel\Agent;
 
@@ -20,15 +21,17 @@ use AG\ElasticApmLaravel\Agent;
  *   - The stacktrace of executed code.
  *
  * The transaction will be send to Elastic server AFTER the reponse has been sent to the browser:
- * https://laravel.com/docs/5.8/middleware#terminable-middleware
+ * https://laravel.com/docs/5.5/middleware#terminable-middleware
  */
 class RecordTransaction
 {
     protected $agent;
+    protected $transaction_name;
 
     public function __construct(Agent $agent)
     {
         $this->agent = $agent;
+        $this->apm_collectors = new Collection();
     }
 
     /**
@@ -40,12 +43,10 @@ class RecordTransaction
      */
     public function handle(Request $request, Closure $next)
     {
-        // Measure the time the application takes to boot
-        app()->make('boot_span')->stop();
-
-        // Get access to main transaction
         $transaction_name = $this->getTransactionName($request);
-        $transaction = $this->agent->getTransaction($transaction_name);
+
+        // Start a transaction and measure the time the application takes to boot
+        $transaction = $this->agent->startTransaction($transaction_name, [], $_SERVER['REQUEST_TIME_FLOAT']);
 
         // Execute the application logic
         $response = $next($request);
@@ -78,27 +79,21 @@ class RecordTransaction
             'result' => $response->getStatusCode(),
             'type' => 'HTTP'
         ]);
-
     }
 
     public function terminate($request, $response): void 
     {
         try {
-            $this->agent->send();
+            $this->agent->sendSpans();
+            // $this->agent->send();
         } catch(Throwable $t) {
-            Log::error($t->getResponse()->getBody());
+            Log::error($t);
         }
     }
 
     protected function getTransactionName(Request $request): string
     {
-        $route = $request->route();
-        if($route instanceof Route) {
-            $uri = $request->route()->uri();
-        } else {
-            $uri = $_SERVER['REQUEST_URI'];
-        }
-
+        $uri = $request->getPathInfo();
         return $request->method() . ' ' . $this->normalizeUri($uri);
     }
 
