@@ -6,9 +6,16 @@
 
 Elastic APM agent for v2 intake API. Compatible with Laravel 5.5+.
 
-| Transactions list                             | Transaction detail                              |
-| --------------------------------------------- | ----------------------------------------------- |
-| <img src="public/apm-transaction-list.png" /> | <img src="public/apm-transaction-detail.png" /> |
+<table>
+    <tr>
+        <td><strong>Transactions list</strong></td>
+        <td><strong>Transaction detail</strong></td>
+    </tr>
+    <tr>
+        <td style="vertical-align: top;"><img src="public/apm-transaction-list.png" /></td>
+        <td style="vertical-align: top;"><img src="public/apm-transaction-detail.png" /></td>
+    </tr>
+</table>
 
 ## Installation
 
