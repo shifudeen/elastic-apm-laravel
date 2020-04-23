@@ -970,7 +970,7 @@
         },
         {
             "name": "philkra/elastic-apm-php-agent",
-            "version": "dev-master",
+            "version": "master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/philkra/elastic-apm-php-agent.git",
