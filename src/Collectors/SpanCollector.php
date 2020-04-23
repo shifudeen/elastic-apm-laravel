@@ -24,12 +24,15 @@ class SpanCollector extends EventDataCollector implements DataCollector
                 $event->type,
                 $event->action,
                 $event->label,
-                $event->start_time,
+                $event->start_time
             );
         });
 
         $this->app->events->listen(StopMeasuring::class, function (StopMeasuring $event) {
-            $this->stopMeasure($event->name, $event->params);
+	    $this->stopMeasure(
+		$event->name,
+		$event->params
+	    );
         });
     }
 }
