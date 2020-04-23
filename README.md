@@ -1,8 +1,8 @@
 # Elastic APM
 
 [![CircleCI](https://circleci.com/gh/arkaitzgarro/elastic-apm-laravel.svg?style=svg)](https://circleci.com/gh/arkaitzgarro/elastic-apm-laravel)
-[![Latest Stable Version](https://poser.pugx.org/arkaitzgarro/elastic-apm-laravel/v/stable)](https://packagist.org/packages/arkaitzgarro/elastic-apm-laravel)
-[![License](https://poser.pugx.org/arkaitzgarro/elastic-apm-laravel/license)](https://packagist.org/packages/arkaitzgarro/elastic-apm-laravel)
+[![Latest Stable Version](https://poser.pugx.org/arkaitzgarro/elastic-apm-laravel/v/stable)](https://packagist.org/packages/shifudeen/elastic-apm-laravel)
+[![License](https://poser.pugx.org/arkaitzgarro/elastic-apm-laravel/license)](https://packagist.org/packages/shifudeen/elastic-apm-laravel)
 
 Elastic APM agent for v2 intake API. Compatible with Laravel 5.5+.
 
@@ -14,7 +14,7 @@ Elastic APM agent for v2 intake API. Compatible with Laravel 5.5+.
 
 Require this package with composer:
 
-    composer require arkaitzgarro/elastic-apm-laravel
+    composer require shifudeen/elastic-apm-laravel
 
 Add the ServiceProvider class to the providers array in `config/app.php`:
 

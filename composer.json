@@ -1,5 +1,5 @@
 {
-    "name": "arkaitzgarro/elastic-apm-laravel",
+    "name": "shifudeen/elastic-apm-laravel",
     "description": "Laravel APM agent for Elastic v2 intake API",
     "keywords": [
         "laravel",
@@ -14,7 +14,7 @@
         }
     ],
     "require": {
-        "php": ">=7.2",
+        "php": ">=7.1",
         "illuminate/database": "^5.5|^6|^7",
         "illuminate/http": "^5.5|^6|^7",
         "illuminate/routing": "^5.5|^6|^7",
